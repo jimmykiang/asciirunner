@@ -58,7 +58,7 @@ impl Player {
         ctx.set(
             20,
             self.y,
-            YELLOW,
+            GREEN,
             BLACK,
             to_cp437(RUNNING_FRAMES[self.frame].parse().unwrap()),
         );
@@ -89,7 +89,7 @@ impl Obstacle {
 
         // Draw the bottom half of the obstacle
         for y in self.gap_y + half_size..SCREEN_HEIGHT {
-            ctx.set(screen_x, y, RED, BLACK, to_cp437('|'));
+            ctx.set(screen_x, y, GREEN, BLACK, to_cp437('|'));
         }
     }
 
@@ -138,15 +138,17 @@ impl State {
 
     fn main_menu(&mut self, ctx: &mut BTerm) {
         ctx.cls();
-        ctx.print_centered(5, "Welcome to ASCII Runner!");
-        ctx.print_centered(7, "Made with ASCII graphics only - And inspired by The Dinosaur Game!");
-        ctx.print_centered(14, "(P) Play Game");
-        ctx.print_centered(15, "(Q) Quit Game");
+        ctx.print_color_centered(5, GREEN,BLACK,"Welcome to ASCII Runner!",);
+        ctx.print_color_centered(7, GREEN,BLACK, "Made with ASCII graphics only - And inspired by The Dinosaur Game!");
+        ctx.print_color_centered(14, GREEN,BLACK, "(P) Play Game");
+        // No quitting in the wasm version.
+        // ctx.print_centered(15, "(Q) Quit Game");
 
         if let Some(key) = ctx.key {
             match key {
                 VirtualKeyCode::P => self.restart(),
-                VirtualKeyCode::Q => ctx.quitting = true,
+                // No quitting in the wasm version.
+                // VirtualKeyCode::Q => ctx.quitting = true,
                 _ => {}
             }
         }
@@ -154,22 +156,26 @@ impl State {
 
     fn dead(&mut self, ctx: &mut BTerm) {
         ctx.cls();
-        ctx.print_centered(5, "Game Over!");
-        ctx.print_centered(8, &format!("Score: {}", self.score));
-        ctx.print_centered(15, "(P) Play Again");
-        ctx.print_centered(16, "(Q) Quit Game");
+        ctx.print_color_centered(5,GREEN,BLACK, "Game Over!");
+        ctx.print_color_centered(8, GREEN,BLACK,&format!("Score: {}", self.score));
+        ctx.print_color_centered(15,GREEN,BLACK, "(P) Play Again");
+
+        // No quitting in the wasm version.
+        // ctx.print_centered(16, "(Q) Quit Game");
 
         if let Some(key) = ctx.key {
             match key {
                 VirtualKeyCode::P => self.restart(),
-                VirtualKeyCode::Q => ctx.quitting = true,
+
+                // No quitting in the wasm version.
+                // VirtualKeyCode::Q => ctx.quitting = true,
                 _ => {}
             }
         }
     }
 
     fn play(&mut self, ctx: &mut BTerm) {
-        ctx.cls_bg(NAVY);
+        ctx.cls_bg(BLACK);
         self.frame_time += ctx.frame_time_ms;
         if self.frame_time > FRAME_DURATION {
             self.frame_time = 0.0;
@@ -180,8 +186,8 @@ impl State {
             self.player.jump();
         }
         self.player.render(ctx);
-        ctx.print(10, 15, "Press SPACE to jump!.");
-        ctx.print(10, 16, &format!("Score: {}", self.score)); // (4)
+        ctx.print_color(10, 15, GREEN,BLACK,"Press SPACE to jump!.");
+        ctx.print_color(10, 16, GREEN,BLACK,&format!("Score: {}", self.score)); // (4)
 
         self.obstacle.render(ctx, self.player.x); // (5)
         if self.player.x > self.obstacle.x {
